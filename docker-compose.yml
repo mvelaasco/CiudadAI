@@ -1,0 +1,53 @@
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ciudadai
+      POSTGRES_PASSWORD: ciudadai_secure_pwd
+      POSTGRES_DB: ciudadai_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - ciudadai-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ciudadai"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://ciudadai:ciudadai_secure_pwd@db:5432/ciudadai_db
+      PRESIDIO_ENABLED: "true"
+      MODEL_PATH: /app/models/classifier.pkl
+      VECTORIZER_PATH: /app/models/vectorizer.pkl
+      ALLOWED_ORIGINS: "http://localhost:5173"
+    volumes:
+      - ./backend/models:/app/models
+    networks:
+      - ciudadai-net
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - ciudadai-net
+
+volumes:
+  postgres_data:
+
+networks:
+  ciudadai-net:
+    driver: bridge
