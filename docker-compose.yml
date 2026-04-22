@@ -13,7 +13,7 @@ services:
     networks:
       - ciudadai-net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ciudadai"]
+      test: ["CMD-SHELL", "pg_isready -U ciudadai -d ciudadai_db"]
       interval: 10s
       timeout: 5s
       retries: 5
