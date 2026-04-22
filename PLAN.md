@@ -45,7 +45,7 @@ CREATE TABLE tickets (
     urgencia_predicha INT,
     urgencia_real INT, -- solo durante entrenamiento
     canal VARCHAR(10) NOT NULL, -- Web, App
-    ubicacion_incidencia POINT, -- GPS
+    ubicacion_incidencia TEXT, -- GPS
     ubicacion_descripcion TEXT,
     fecha_creacion TIMESTAMP DEFAULT NOW(),
     fecha_actualizacion TIMESTAMP DEFAULT NOW(),
